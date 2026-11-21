@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="head(titre)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${titre} + ' - BloodLink'">BloodLink</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/bloodlink.css}">
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body>
+
+<!-- barre de navigation, les liens dependent du role -->
+<nav th:fragment="navbar" class="navbar navbar-expand-lg navbar-dark bg-danger">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/accueil}">BloodLink</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="menu">
+            <ul class="navbar-nav me-auto">
+                <th:block th:if="${role == 'DONNEUR'}">
+                    <li class="nav-item"><a class="nav-link" th:href="@{/donneur/accueil}">Mon espace</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/donneur/hopitaux}">Hopitaux</a></li>
+                </th:block>
+                <th:block th:if="${role == 'MEDECIN'}">
+                    <li class="nav-item"><a class="nav-link" th:href="@{/medecin/rendez-vous}">Rendez-vous</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/medecin/don/nouveau}">Nouveau don</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/medecin/dons}">Dons</a></li>
+                </th:block>
+                <th:block th:if="${role == 'GESTIONNAIRE_STOCK'}">
+                    <li class="nav-item"><a class="nav-link" th:href="@{/stock}">Stock</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/stock/poches/nouvelle}">Ajouter une poche</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/stock/alerte}">Alerte</a></li>
+                </th:block>
+                <th:block th:if="${role == 'ADMIN_HOPITAL'}">
+                    <li class="nav-item"><a class="nav-link" th:href="@{/hopital/stock}">Stock autres hopitaux</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/hopital/demandes/nouvelle}">Nouvelle demande</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/hopital/demandes/envoyees}">Demandes envoyees</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/hopital/demandes/recues}">Demandes recues</a></li>
+                </th:block>
+                <th:block th:if="${role == 'ADMIN_SYSTEME'}">
+                    <li class="nav-item"><a class="nav-link" th:href="@{/admin/dashboard}">Tableau de bord</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/admin/hopitaux}">Hopitaux</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/admin/utilisateurs}">Utilisateurs</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/admin/parametres}">Parametres</a></li>
+                    <li class="nav-item"><a class="nav-link" th:href="@{/admin/donneurs}">Donneurs</a></li>
+                </th:block>
+            </ul>
+
+            <div class="d-flex text-white" th:if="${role != null}">
+                <span class="me-3" th:text="${utilisateurEmail}"></span>
+                <form th:action="@{/logout}" method="post">
+                    <button class="btn btn-sm btn-light" type="submit">Deconnexion</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- messages de succes et d'erreur -->
+<div th:fragment="messages">
+    <div class="alert alert-success" th:if="${message}" th:text="${message}"></div>
+    <div class="alert alert-danger" th:if="${erreur}" th:text="${erreur}"></div>
+</div>
+
+<!-- pagination -->
+<nav th:fragment="pagination(page, baseUrl)" th:if="${page.totalPages > 1}">
+    <ul class="pagination">
+        <li class="page-item" th:each="i : ${#numbers.sequence(0, page.totalPages - 1)}"
+            th:classappend="${i == page.number} ? 'active'">
+            <a class="page-link" th:href="@{${baseUrl + 'page=' + i}}" th:text="${i + 1}">1</a>
+        </li>
+    </ul>
+</nav>
+
+</body>
+</html>

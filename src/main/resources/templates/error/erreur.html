@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Operation impossible')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="container mt-5 text-center">
+    <h1 class="text-danger">Operation impossible</h1>
+    <p th:text="${message}">message</p>
+    <a class="btn btn-danger" th:href="@{/accueil}">Retour a l'accueil</a>
+</div>
+</body>
+</html>

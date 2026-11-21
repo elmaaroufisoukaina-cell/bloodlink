@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Acces refuse')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="container mt-5 text-center">
+    <h1 class="text-danger">403</h1>
+    <p>Acces refuse : vous n'avez pas le droit de voir cette page.</p>
+    <p class="text-muted" th:if="${message}" th:text="${message}"></p>
+    <a class="btn btn-danger" th:href="@{/accueil}">Retour a l'accueil</a>
+</div>
+</body>
+</html>

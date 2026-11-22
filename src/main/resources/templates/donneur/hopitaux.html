@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Hopitaux')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="container mt-4">
+    <h2 class="mb-3">Hopitaux</h2>
+    <div th:replace="~{fragments/layout :: messages}"></div>
+    <!-- filtre par ville -->
+    <form class="row g-2 mb-4" method="get" th:action="@{/donneur/hopitaux}">
+        <div class="col-auto">
+            <input type="text" name="ville" th:value="${ville}" class="form-control" placeholder="Ville">
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-outline-danger">Filtrer</button>
+        </div>
+    </form>
+
+    <div class="row">
+        <div class="col-md-4 mb-3" th:each="h : ${hopitaux}">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${h.nom}">Hopital</h5>
+                    <p class="mb-1" th:text="${h.ville} + ' - ' + ${h.adresse}"></p>
+                    <p class="mb-1">Tel : <span th:text="${h.telephone}"></span></p>
+                    <p class="text-muted">
+                        Ouvert de <span th:text="${#temporals.format(h.heureOuverture, 'HH:mm')}"></span>
+                        a <span th:text="${#temporals.format(h.heureFermeture, 'HH:mm')}"></span>
+                    </p>
+                    <a class="btn btn-danger btn-sm" th:href="@{/donneur/hopitaux/{id}/rendez-vous(id=${h.id})}">
+                        Prendre rendez-vous</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p class="text-muted" th:if="${#lists.isEmpty(hopitaux)}">Aucun hopital trouve.</p>
+</div>
+</body>
+</html>

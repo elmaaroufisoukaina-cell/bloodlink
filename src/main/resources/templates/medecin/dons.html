@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Dons enregistrés')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container my-4">
+    <h2 class="mb-3">Dons enregistrés dans mon hôpital</h2>
+    <div th:replace="~{fragments/layout :: messages}"></div>
+
+    <table class="table table-striped align-middle">
+        <thead>
+        <tr><th>Date</th><th>Donneur</th><th>Groupe</th><th>Type</th><th>Volume</th><th>Statut</th>
+            <th>Poches</th><th>Motif du refus</th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="d : ${page.content}">
+            <td th:text="${#temporals.format(d.dateDon, 'dd/MM/yyyy')}"></td>
+            <td th:text="${d.donneur.prenom} + ' ' + ${d.donneur.nom}"></td>
+            <td th:text="${d.donneur.groupeSanguin.code}"></td>
+            <td th:text="${d.typeDon}"></td>
+            <td th:text="${d.volumeMl} + ' ml'"></td>
+            <td>
+                <span class="badge" th:text="${d.statut}"
+                      th:classappend="${d.statut.name() == 'REALISE'} ? 'bg-success' : 'bg-danger'"></span>
+            </td>
+            <td th:text="${d.poches.size()}"></td>
+            <td th:text="${d.questionnaire != null} ? ${d.questionnaire.motifRefus} : ''"></td>
+        </tr>
+        </tbody>
+    </table>
+    <p class="text-muted" th:if="${page.empty}">Aucun don enregistré.</p>
+
+    <div th:replace="~{fragments/layout :: pagination(${page}, ${baseUrl})}"></div>
+</div>
+</body>
+</html>

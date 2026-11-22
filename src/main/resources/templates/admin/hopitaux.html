@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Hopitaux')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container mt-4">
+    <h2 class="mb-3">Hopitaux du reseau</h2>
+    <a class="btn btn-danger mb-3" th:href="@{/admin/hopitaux/nouveau}">Nouvel hopital</a>
+    <div th:replace="~{fragments/layout :: messages}"></div>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Nom</th>
+            <th>Ville</th>
+            <th>Horaires</th>
+            <th>Creneau</th>
+            <th>Capacite</th>
+            <th>Statut</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="h : ${page.content}">
+            <td th:text="${h.nom}"></td>
+            <td th:text="${h.ville}"></td>
+            <td th:text="${#temporals.format(h.heureOuverture, 'HH:mm')} + ' - ' + ${#temporals.format(h.heureFermeture, 'HH:mm')}"></td>
+            <td th:text="${h.dureeCreneauMin} + ' min'"></td>
+            <td th:text="${h.capaciteParCreneau}"></td>
+            <td th:text="${h.valide} ? 'Valide' : 'En attente'"></td>
+            <td>
+                <a class="btn btn-sm btn-outline-primary" th:href="@{/admin/hopitaux/{id}/modifier(id=${h.id})}">Modifier</a>
+                <form class="d-inline" method="post" th:action="@{/admin/hopitaux/{id}/valider(id=${h.id})}">
+                    <button class="btn btn-sm btn-outline-success" th:text="${h.valide} ? 'Invalider' : 'Valider'"></button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:replace="~{fragments/layout :: pagination(${page}, ${baseUrl})}"></div>
+</div>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Rendez-vous')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container mt-4">
+    <h2 class="mb-3">Rendez-vous de mon hopital</h2>
+    <div th:replace="~{fragments/layout :: messages}"></div>
+
+    <!-- filtre par statut -->
+    <form class="row g-2 mb-3" method="get" th:action="@{/medecin/rendez-vous}">
+        <div class="col-auto">
+            <select name="statut" class="form-select">
+                <option value="">Tous</option>
+                <option th:each="s : ${statuts}" th:value="${s}" th:text="${s}" th:selected="${s == statut}"></option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-outline-danger">Filtrer</button>
+        </div>
+    </form>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Donneur</th>
+            <th>CIN</th>
+            <th>Groupe</th>
+            <th>Statut</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="r : ${page.content}">
+            <td th:text="${#temporals.format(r.dateHeure, 'dd/MM/yyyy HH:mm')}"></td>
+            <td th:text="${r.donneur.prenom} + ' ' + ${r.donneur.nom}"></td>
+            <td th:text="${r.donneur.cin}"></td>
+            <td th:text="${r.donneur.groupeSanguin.code}"></td>
+            <td th:text="${r.statut}"></td>
+            <td>
+                <a class="btn btn-sm btn-danger" th:if="${r.statut.name() == 'PLANIFIE'}"
+                   th:href="@{/medecin/don/nouveau(cin=${r.donneur.cin})}">Enregistrer le don</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <p class="text-muted" th:if="${page.empty}">Aucun rendez-vous.</p>
+    <div th:replace="~{fragments/layout :: pagination(${page}, ${baseUrl})}"></div>
+</div>
+</body>
+</html>

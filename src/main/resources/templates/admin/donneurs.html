@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Donneurs')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container mt-4">
+    <h2 class="mb-3">Recherche de donneurs</h2>
+
+    <form class="row g-2 mb-3" method="get" th:action="@{/admin/donneurs}">
+        <div class="col-auto">
+            <select name="groupeId" class="form-select">
+                <option value="0">Tous les groupes</option>
+                <option th:each="g : ${groupes}" th:value="${g.id}" th:text="${g.code}"
+                        th:selected="${g.id == groupeId}"></option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <input type="text" name="ville" th:value="${ville}" class="form-control" placeholder="Ville">
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-danger">Rechercher</button>
+        </div>
+    </form>
+
+    <p class="text-muted"><span th:text="${page.totalElements}"></span> donneur(s) trouve(s)</p>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Nom</th>
+            <th>Prenom</th>
+            <th>CIN</th>
+            <th>Groupe</th>
+            <th>Ville</th>
+            <th>Telephone</th>
+            <th>Prochain don</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="d : ${page.content}">
+            <td th:text="${d.nom}"></td>
+            <td th:text="${d.prenom}"></td>
+            <td th:text="${d.cin}"></td>
+            <td th:text="${d.groupeSanguin.code}"></td>
+            <td th:text="${d.ville}"></td>
+            <td th:text="${d.telephone}"></td>
+            <td th:text="${d.dateProchainDon != null} ? ${#temporals.format(d.dateProchainDon, 'dd/MM/yyyy')} : 'Disponible'"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:replace="~{fragments/layout :: pagination(${page}, ${baseUrl})}"></div>
+</div>
+</body>
+</html>

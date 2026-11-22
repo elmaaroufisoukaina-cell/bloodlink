@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Mon espace')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container mt-4">
+    <h2 class="mb-3">Bonjour <span th:text="${donneur.prenom}"></span></h2>
+    <div th:replace="~{fragments/layout :: messages}"></div>
+
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card card-stat">
+                <div class="card-body">
+                    <h6 class="text-muted">Mon groupe sanguin</h6>
+                    <p class="h3" th:text="${donneur.groupeSanguin.code}"></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card card-stat">
+                <div class="card-body">
+                    <h6 class="text-muted">Prochaine date de don</h6>
+                    <p class="h4" th:if="${donneur.dateProchainDon != null}"
+                       th:text="${#temporals.format(donneur.dateProchainDon, 'dd/MM/yyyy')}"></p>
+                    <p class="h4" th:if="${donneur.dateProchainDon == null}">Des maintenant</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card card-stat">
+                <div class="card-body">
+                    <h6 class="text-muted">Eligibilite aujourd'hui</h6>
+                    <span class="badge bg-success" th:if="${eligible}">Eligible</span>
+                    <div th:if="${!eligible}">
+                        <span class="badge bg-danger">Non eligible</span>
+                        <p class="small mt-1" th:text="${motif}"></p>
+                    </div>
+                    <a class="btn btn-danger btn-sm mt-2" th:href="@{/donneur/hopitaux}">Prendre rendez-vous</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- utilisation des dons (BF7) -->
+    <div class="alert alert-info" th:if="${!#lists.isEmpty(utilisations)}">
+        <strong>Merci !</strong>
+        <div th:each="u : ${utilisations}">
+            Votre don du <span th:text="${#temporals.format(u.dateDon, 'dd/MM/yyyy')}"></span>
+            (<span th:text="${u.typeProduit}"></span>, poche <span th:text="${u.numeroSerie}"></span>)
+            a ete utilise a l'hopital <strong th:text="${u.hopital}"></strong>.
+        </div>
+    </div>
+
+    <h4>Mes rendez-vous</h4>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Hopital</th>
+            <th>Statut</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="r : ${rendezVous}">
+            <td th:text="${#temporals.format(r.dateHeure, 'dd/MM/yyyy HH:mm')}"></td>
+            <td th:text="${r.hopital.nom}"></td>
+            <td th:text="${r.statut}"></td>
+            <td>
+                <form method="post" th:if="${r.statut.name() == 'PLANIFIE' and r.dateHeure.isAfter(maintenant)}"
+                      th:action="@{/donneur/rendez-vous/{id}/annuler(id=${r.id})}">
+                    <button class="btn btn-sm btn-outline-danger">Annuler</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <p class="text-muted" th:if="${#lists.isEmpty(rendezVous)}">Aucun rendez-vous.</p>
+
+    <h4 class="mt-4">Historique de mes dons</h4>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Hopital</th>
+            <th>Type</th>
+            <th>Volume</th>
+            <th>Statut</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="d : ${dons}">
+            <td th:text="${#temporals.format(d.dateDon, 'dd/MM/yyyy')}"></td>
+            <td th:text="${d.hopital.nom}"></td>
+            <td th:text="${d.typeDon}"></td>
+            <td th:text="${d.volumeMl} + ' ml'"></td>
+            <td th:text="${d.statut}"></td>
+        </tr>
+        </tbody>
+    </table>
+    <p class="text-muted" th:if="${#lists.isEmpty(dons)}">Aucun don pour le moment.</p>
+</div>
+</body>
+</html>

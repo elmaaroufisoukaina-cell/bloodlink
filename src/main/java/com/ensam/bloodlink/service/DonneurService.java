@@ -1,12 +1,14 @@
 package com.ensam.bloodlink.service;
 
 import com.ensam.bloodlink.dto.InscriptionForm;
+import com.ensam.bloodlink.entity.Don;
 import com.ensam.bloodlink.entity.Donneur;
 import com.ensam.bloodlink.entity.GroupeSanguin;
 import com.ensam.bloodlink.entity.Role;
 import com.ensam.bloodlink.entity.Utilisateur;
 import com.ensam.bloodlink.exception.BusinessException;
 import com.ensam.bloodlink.exception.ResourceNotFoundException;
+import com.ensam.bloodlink.repository.DonRepository;
 import com.ensam.bloodlink.repository.DonneurRepository;
 import com.ensam.bloodlink.repository.UtilisateurRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +19,14 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class DonneurService {
     private final DonneurRepository donneurRepository;
     private final UtilisateurRepository utilisateurRepository;
+    private final DonRepository donRepository;
     private final GroupeSanguinService groupeService;
     private final PasswordEncoder passwordEncoder;
 
@@ -64,6 +69,11 @@ public class DonneurService {
         return donneurRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Donneur introuvable"));
     }
+    // historique des dons du donneur, du plus recent au plus ancien
+    public List<Don> historique(Long donneurId) {
+        return donRepository.findByDonneurIdOrderByDateDonDesc(donneurId);
+    }
+
     // recherche par groupe (0 = tous) et par ville, pour l'admin
     public Page<Donneur> rechercher(long groupeId, String ville, int page) {
         String v = (ville == null) ? "" : ville.trim();

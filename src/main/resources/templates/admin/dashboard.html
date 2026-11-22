@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Tableau de bord')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container mt-4">
+    <h2 class="mb-3">Tableau de bord du reseau</h2>
+    <form method="post" th:action="@{/admin/expirer}" class="mb-3">
+        <button class="btn btn-outline-danger">Perimer les poches expirees maintenant</button>
+    </form>
+    <div th:replace="~{fragments/layout :: messages}"></div>
+
+    <!-- chiffres -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card card-stat">
+                <div class="card-body">
+                    <h6 class="text-muted">Expirent cette semaine</h6>
+                    <p class="h3" th:text="${d.expirantCetteSemaine}"></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card card-stat">
+                <div class="card-body">
+                    <h6 class="text-muted">Poches servies</h6>
+                    <p class="h3" th:text="${d.totalServies}"></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card card-stat">
+                <div class="card-body">
+                    <h6 class="text-muted">Poches perimees</h6>
+                    <p class="h3" th:text="${d.totalPerimees}"></p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card card-stat">
+                <div class="card-body">
+                    <h6 class="text-muted">Taux de gaspillage</h6>
+                    <p class="h3" th:text="${d.tauxGaspillage} + ' %'"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jauges de tout le reseau -->
+    <h5>Stock disponible du reseau</h5>
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3" th:each="g : ${d.jauges}">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <span class="jauge-label" th:text="${g.code}"></span>
+                        <span th:text="${g.quantite} + ' / ' + ${g.seuil}"></span>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar" th:classappend="${g.enAlerte} ? 'bg-danger' : 'bg-success'"
+                             th:style="'width:' + ${g.pourcentage} + '%'"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- dons par mois -->
+    <h5>Dons realises par mois</h5>
+    <div class="row">
+        <div class="col-md-8 mb-3">
+            <canvas id="graphDons" height="120"></canvas>
+        </div>
+        <div class="col-md-4 mb-3">
+            <table class="table table-sm">
+                <thead>
+                <tr>
+                    <th>Mois</th>
+                    <th>Dons</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="mois, st : ${d.moisLabels}">
+                    <td th:text="${mois}"></td>
+                    <td th:text="${d.moisValeurs[st.index]}"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script th:inline="javascript">
+    const labels = /*[[${d.moisLabels}]]*/ [];
+    const valeurs = /*[[${d.moisValeurs}]]*/ [];
+    if (window.Chart) {
+        new Chart(document.getElementById('graphDons'), {
+            type: 'bar',
+            data: { labels: labels, datasets: [{ label: 'Dons realises', data: valeurs, backgroundColor: '#dc3545' }] },
+            options: { scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+        });
+    }
+</script>
+</body>
+</html>

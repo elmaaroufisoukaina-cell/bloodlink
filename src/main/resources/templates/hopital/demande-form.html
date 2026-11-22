@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Nouvelle demande')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container mt-4" style="max-width: 900px;">
+    <h2 class="mb-3">Nouvelle demande de sang</h2>
+
+    <form th:action="@{/hopital/demandes}" th:object="${form}" method="post">
+
+        <div class="alert alert-danger" th:if="${#fields.hasErrors('*')}">
+            <div th:each="e : ${#fields.errors('*')}" th:text="${e}"></div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <label class="form-label">Hopital fournisseur</label>
+                <select th:field="*{fournisseurId}" class="form-select">
+                    <option value="">--</option>
+                    <option th:each="h : ${hopitaux}" th:value="${h.id}" th:text="${h.nom} + ' (' + ${h.ville} + ')'"></option>
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Commentaire</label>
+                <input type="text" th:field="*{commentaire}" class="form-control">
+            </div>
+        </div>
+
+        <h5>Lignes de la demande</h5>
+        <p class="text-muted">Les lignes sans quantite sont ignorees.</p>
+
+        <div class="row mb-2" th:each="l, st : *{lignes}">
+            <div class="col-md-3">
+                <select th:field="*{lignes[__${st.index}__].groupeId}" class="form-select">
+                    <option value="">Groupe</option>
+                    <option th:each="g : ${groupes}" th:value="${g.id}" th:text="${g.code}"></option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select th:field="*{lignes[__${st.index}__].typeProduit}" class="form-select">
+                    <option value="">Produit</option>
+                    <option th:each="t : ${types}" th:value="${t}" th:text="${t}"></option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <input type="number" min="0" th:field="*{lignes[__${st.index}__].quantite}" class="form-control" placeholder="Quantite">
+            </div>
+            <div class="col-md-3">
+                <select th:field="*{lignes[__${st.index}__].urgence}" class="form-select">
+                    <option th:each="u : ${urgences}" th:value="${u}" th:text="${u}"></option>
+                </select>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-danger mt-3">Envoyer</button>
+        <a class="btn btn-link mt-3" th:href="@{/hopital/stock}">Retour</a>
+    </form>
+</div>
+</body>
+</html>

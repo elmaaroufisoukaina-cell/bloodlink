@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Poche')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container my-4" style="max-width: 680px;">
+    <h2 class="mb-3" th:text="${edition} ? 'Modifier la poche' : 'Ajouter une poche'">Poche</h2>
+
+    <form th:action="${edition} ? @{/stock/poches/{id}(id=${pocheId})} : @{/stock/poches}"
+          th:object="${form}" method="post">
+
+        <div class="alert alert-danger" th:if="${#fields.hasErrors('*')}">
+            <div th:each="e : ${#fields.errors('*')}" th:text="${e}"></div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Numéro de série</label>
+                <input type="text" th:field="*{numeroSerie}" class="form-control">
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Produit</label>
+                <select th:field="*{typeProduit}" class="form-select">
+                    <option value="">-- choisir --</option>
+                    <option value="GLOBULES_ROUGES">Globules rouges</option>
+                    <option value="PLASMA">Plasma</option>
+                    <option value="PLAQUETTES">Plaquettes</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Volume (ml)</label>
+                <input type="number" th:field="*{volumeMl}" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Date de prélèvement</label>
+                <input type="date" th:field="*{datePrelevement}" class="form-control">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Date de péremption</label>
+                <input type="date" th:field="*{datePeremption}" class="form-control">
+            </div>
+
+            <!-- creation : on choisit le don ; modification : le don d'origine ne change pas -->
+            <div class="col-12" th:if="${!edition}">
+                <label class="form-label">Don d'origine</label>
+                <select th:field="*{donId}" class="form-select">
+                    <option value="">-- choisir un don réalisé --</option>
+                    <option th:each="d : ${dons}" th:value="${d.id}"
+                            th:text="${#temporals.format(d.dateDon, 'dd/MM/yyyy')} + ' - ' + ${d.donneur.nom} + ' (' + ${d.donneur.groupeSanguin.code} + ')'"></option>
+                </select>
+            </div>
+            <input type="hidden" th:if="${edition}" th:field="*{donId}">
+        </div>
+
+        <button type="submit" class="btn btn-danger mt-4">Enregistrer</button>
+        <a class="btn btn-link mt-4" th:href="@{/stock}">Annuler</a>
+    </form>
+</div>
+</body>
+</html>

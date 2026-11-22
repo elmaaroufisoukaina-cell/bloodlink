@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Traçabilité')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container my-4" style="max-width: 820px;">
+    <h2 class="mb-3">Traçabilité de la poche <span th:text="${poche.numeroSerie}"></span></h2>
+
+    <ol class="list-group list-group-numbered">
+        <li class="list-group-item">
+            <strong>Donneur</strong> :
+            <span th:text="${poche.don.donneur.prenom} + ' ' + ${poche.don.donneur.nom}"></span>
+            (CIN <span th:text="${poche.don.donneur.cin}"></span>),
+            groupe <strong th:text="${poche.don.donneur.groupeSanguin.code}"></strong>
+        </li>
+        <li class="list-group-item">
+            <strong>Don</strong> du <span th:text="${#temporals.format(poche.don.dateDon, 'dd/MM/yyyy')}"></span>
+            à <span th:text="${poche.don.hopital.nom}"></span>
+            (<span th:text="${poche.don.typeDon}"></span>, <span th:text="${poche.don.volumeMl}"></span> ml),
+            médecin : <span th:text="${poche.don.medecin.email}"></span>
+        </li>
+        <li class="list-group-item">
+            <strong>Poche</strong> <span th:text="${poche.typeProduit}"></span>,
+            <span th:text="${poche.volumeMl}"></span> ml, péremption le
+            <span th:text="${#temporals.format(poche.datePeremption, 'dd/MM/yyyy')}"></span>
+            - statut <span class="badge bg-secondary" th:text="${poche.statut}"></span>
+        </li>
+        <li class="list-group-item" th:if="${poche.ligneDemande != null}">
+            <strong>Demande</strong> n° <span th:text="${poche.ligneDemande.demande.id}"></span>
+            du <span th:text="${#temporals.format(poche.ligneDemande.demande.dateDemande, 'dd/MM/yyyy')}"></span>,
+            reçue par <strong th:text="${poche.ligneDemande.demande.hopitalDemandeur.nom}"></strong>
+            (<span th:text="${poche.ligneDemande.demande.hopitalDemandeur.ville}"></span>)
+        </li>
+        <li class="list-group-item text-muted" th:if="${poche.ligneDemande == null}">
+            Cette poche n'a pas été envoyée à un autre hôpital.
+        </li>
+    </ol>
+
+    <a class="btn btn-link mt-3" th:href="@{/stock}">Retour au stock</a>
+</div>
+</body>
+</html>

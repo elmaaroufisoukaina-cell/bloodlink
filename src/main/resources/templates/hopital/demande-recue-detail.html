@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Traiter une demande')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container my-4">
+    <h2 class="mb-1">Demande n° <span th:text="${demande.id}"></span></h2>
+    <p class="text-muted">
+        De <strong th:text="${demande.hopitalDemandeur.nom}"></strong>
+        - envoyée le <span th:text="${#temporals.format(demande.dateDemande, 'dd/MM/yyyy HH:mm')}"></span>
+        - statut : <span class="badge bg-info text-dark" th:text="${demande.statut}"></span>
+    </p>
+    <p th:if="${demande.commentaire != null}">Commentaire : <em th:text="${demande.commentaire}"></em></p>
+    <div th:replace="~{fragments/layout :: messages}"></div>
+
+    <!-- une demande SERVIE ou REFUSEE est cloturee : on n'affiche que le resume -->
+    <div th:with="ouverte=${demande.statut.name() == 'EN_ATTENTE' or demande.statut.name() == 'PARTIELLEMENT_SERVIE'}">
+
+        <form method="post" th:action="@{/hopital/demandes/recues/{id}/accepter(id=${demande.id})}">
+
+            <div class="card mb-3" th:each="prop : ${propositions}">
+                <div class="card-header d-flex justify-content-between">
+                    <span>
+                        <strong th:text="${prop.ligne.quantite} + ' x ' + ${prop.ligne.typeProduit}"></strong>
+                        pour le groupe <strong th:text="${prop.ligne.groupeSanguin.code}"></strong>
+                        <span class="badge bg-secondary" th:text="${prop.ligne.urgence}"></span>
+                    </span>
+                    <span>Déjà servies : <span th:text="${prop.ligne.poches.size()}"></span>
+                        - Reste : <strong th:text="${prop.restant}"></strong></span>
+                </div>
+                <div class="card-body" th:if="${prop.restant > 0 and ouverte}">
+
+                    <div class="alert alert-warning" th:if="${prop.manquant > 0}">
+                        Stock insuffisant : il manque <strong th:text="${prop.manquant}"></strong> poche(s).
+                        Vous pouvez servir ce qui existe : la demande deviendra « partiellement servie ».
+                    </div>
+
+                    <p class="text-muted" th:if="${#lists.isEmpty(prop.candidates)}">
+                        Aucune poche compatible disponible.</p>
+
+                    <table class="table table-sm align-middle" th:if="${!#lists.isEmpty(prop.candidates)}">
+                        <thead>
+                        <tr><th></th><th>N° de série</th><th>Groupe</th><th>Péremption</th><th>Jours restants</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="p : ${prop.candidates}">
+                            <td>
+                                <input type="checkbox" name="choix" class="form-check-input"
+                                       th:value="${prop.ligne.id + ':' + p.id}"
+                                       th:checked="${prop.preselection.contains(p.id)}">
+                            </td>
+                            <td th:text="${p.numeroSerie}"></td>
+                            <td th:text="${p.don.donneur.groupeSanguin.code}"></td>
+                            <td th:text="${#temporals.format(p.datePeremption, 'dd/MM/yyyy')}"></td>
+                            <td th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(today, p.datePeremption)}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-success" th:if="${ouverte}">Envoyer les poches cochées</button>
+        </form>
+
+        <form class="d-inline" method="post" th:if="${demande.statut.name() == 'EN_ATTENTE'}"
+              th:action="@{/hopital/demandes/recues/{id}/refuser(id=${demande.id})}"
+              onsubmit="return confirm('Refuser cette demande ? Elle sera cloturée.');">
+            <button type="submit" class="btn btn-outline-danger mt-2">Refuser la demande</button>
+        </form>
+    </div>
+
+    <a class="btn btn-link mt-3" th:href="@{/hopital/demandes/recues}">Retour à la liste</a>
+</div>
+</body>
+</html>

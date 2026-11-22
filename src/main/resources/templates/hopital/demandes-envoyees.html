@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Demandes envoyees')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container mt-4">
+    <h2 class="mb-3">Demandes envoyees</h2>
+    <div th:replace="~{fragments/layout :: messages}"></div>
+
+    <form class="row g-2 mb-3" method="get" th:action="@{/hopital/demandes/envoyees}">
+        <div class="col-auto">
+            <select name="urgence" class="form-select">
+                <option value="">Toutes</option>
+                <option th:each="u : ${urgences}" th:value="${u}" th:text="${u}" th:selected="${u == urgence}"></option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-outline-danger">Filtrer</button>
+        </div>
+        <div class="col-auto">
+            <a class="btn btn-danger" th:href="@{/hopital/demandes/nouvelle}">Nouvelle demande</a>
+        </div>
+    </form>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Fournisseur</th>
+            <th>Lignes (recues / demandees)</th>
+            <th>Statut</th>
+            <th>Commentaire</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="d : ${page.content}">
+            <td th:text="${#temporals.format(d.dateDemande, 'dd/MM/yyyy HH:mm')}"></td>
+            <td th:text="${d.hopitalFournisseur.nom}"></td>
+            <td>
+                <div th:each="l : ${d.lignes}">
+                    <span th:text="${l.typeProduit} + ' ' + ${l.groupeSanguin.code} + ' : '"></span>
+                    <strong th:text="${l.poches.size()} + ' / ' + ${l.quantite}"></strong>
+                    <span class="text-muted" th:text="'(' + ${l.urgence} + ')'"></span>
+                </div>
+            </td>
+            <td th:text="${d.statut}"></td>
+            <td th:text="${d.commentaire}"></td>
+        </tr>
+        </tbody>
+    </table>
+    <p class="text-muted" th:if="${page.empty}">Aucune demande envoyee.</p>
+
+    <div th:replace="~{fragments/layout :: pagination(${page}, ${baseUrl})}"></div>
+</div>
+</body>
+</html>

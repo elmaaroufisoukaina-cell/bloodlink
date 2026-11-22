@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Alerte pénurie')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container my-4">
+    <h2 class="mb-3">Alerte de pénurie</h2>
+
+    <div class="alert alert-success" th:if="${#lists.isEmpty(alertes)}">
+        Aucun groupe sanguin n'est sous son seuil d'alerte.</div>
+
+    <div class="card border-danger mb-4" th:each="a : ${alertes}">
+        <div class="card-header bg-danger text-white d-flex justify-content-between">
+            <span>Groupe <strong th:text="${a.groupe.code}"></strong> en pénurie</span>
+            <span>Stock disponible : <strong th:text="${a.stock}"></strong>
+                / seuil <strong th:text="${a.groupe.seuilAlerte}"></strong></span>
+        </div>
+        <div class="card-body">
+            <p class="mb-2">Donneurs éligibles à contacter (groupes compatibles) :
+                <strong th:text="${a.donneurs.size()}"></strong></p>
+            <table class="table table-sm table-striped" th:if="${!#lists.isEmpty(a.donneurs)}">
+                <thead>
+                <tr><th>Nom</th><th>Prénom</th><th>Groupe</th><th>Ville</th><th>Téléphone</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="d : ${a.donneurs}">
+                    <td th:text="${d.nom}"></td>
+                    <td th:text="${d.prenom}"></td>
+                    <td th:text="${d.groupeSanguin.code}"></td>
+                    <td th:text="${d.ville}"></td>
+                    <td th:text="${d.telephone}"></td>
+                </tr>
+                </tbody>
+            </table>
+            <p class="text-muted" th:if="${#lists.isEmpty(a.donneurs)}">Aucun donneur éligible pour le moment.</p>
+        </div>
+    </div>
+
+    <a class="btn btn-link" th:href="@{/stock}">Retour au stock</a>
+</div>
+</body>
+</html>

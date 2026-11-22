@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Utilisateurs')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container mt-4">
+    <h2 class="mb-3">Utilisateurs</h2>
+    <a class="btn btn-danger mb-3" th:href="@{/admin/utilisateurs/nouveau}">Nouveau compte du personnel</a>
+    <div th:replace="~{fragments/layout :: messages}"></div>
+
+    <form class="row g-2 mb-3" method="get" th:action="@{/admin/utilisateurs}">
+        <div class="col-auto">
+            <select name="role" class="form-select">
+                <option value="">Tous les roles</option>
+                <option th:each="r : ${roles}" th:value="${r}" th:text="${r}" th:selected="${r == roleFiltre}"></option>
+            </select>
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-outline-danger">Filtrer</button>
+        </div>
+    </form>
+
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Hopital / Donneur</th>
+            <th>Actif</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="u : ${page.content}">
+            <td th:text="${u.email}"></td>
+            <td>
+                <!-- on peut changer le role du personnel seulement -->
+                <form class="d-flex" method="post"
+                      th:if="${u.role.name() != 'DONNEUR' and u.role.name() != 'ADMIN_SYSTEME'}"
+                      th:action="@{/admin/utilisateurs/{id}/role(id=${u.id})}">
+                    <select name="role" class="form-select form-select-sm">
+                        <option th:each="r : ${rolesPersonnel}" th:value="${r}" th:text="${r}" th:selected="${r == u.role}"></option>
+                    </select>
+                    <button class="btn btn-sm btn-outline-primary ms-1">OK</button>
+                </form>
+                <span th:if="${u.role.name() == 'DONNEUR' or u.role.name() == 'ADMIN_SYSTEME'}" th:text="${u.role}"></span>
+            </td>
+            <td>
+                <span th:if="${u.hopital != null}" th:text="${u.hopital.nom}"></span>
+                <span th:if="${u.donneur != null}" th:text="${u.donneur.prenom} + ' ' + ${u.donneur.nom}"></span>
+            </td>
+            <td th:text="${u.actif} ? 'Oui' : 'Non'"></td>
+            <td>
+                <form method="post" th:action="@{/admin/utilisateurs/{id}/actif(id=${u.id})}">
+                    <button class="btn btn-sm btn-outline-warning" th:text="${u.actif} ? 'Desactiver' : 'Activer'"></button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:replace="~{fragments/layout :: pagination(${page}, ${baseUrl})}"></div>
+</div>
+</body>
+</html>

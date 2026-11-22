@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Parametres')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<div class="container mt-4">
+    <h2 class="mb-3">Parametres</h2>
+    <div th:replace="~{fragments/layout :: messages}"></div>
+
+    <div class="row">
+        <div class="col-md-5 mb-4">
+            <h5>Seuils d'alerte par groupe</h5>
+            <table class="table table-sm">
+                <thead>
+                <tr>
+                    <th>Groupe</th>
+                    <th>Seuil</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="g : ${groupes}">
+                    <td th:text="${g.code}"></td>
+                    <td>
+                        <form class="d-flex" method="post" th:action="@{/admin/groupes/{id}/seuil(id=${g.id})}">
+                            <input type="number" min="0" name="seuil" th:value="${g.seuilAlerte}"
+                                   class="form-control form-control-sm" style="max-width: 90px;">
+                            <button class="btn btn-sm btn-outline-primary ms-1">OK</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="col-md-7 mb-4">
+            <h5>Delais et limites</h5>
+            <table class="table table-sm">
+                <thead>
+                <tr>
+                    <th>Cle</th>
+                    <th>Description</th>
+                    <th>Valeur</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${parametres}">
+                    <td th:text="${p.cle}"></td>
+                    <td th:text="${p.description}"></td>
+                    <td>
+                        <form class="d-flex" method="post" th:action="@{/admin/parametres/{id}(id=${p.id})}">
+                            <input type="number" min="1" name="valeur" th:value="${p.valeur}"
+                                   class="form-control form-control-sm" style="max-width: 90px;">
+                            <button class="btn btn-sm btn-outline-primary ms-1">OK</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>
